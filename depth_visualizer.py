@@ -25,8 +25,6 @@ class Depth_visulizer():
 
     def callback(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg, "16UC1")
-        self.max_distance = 1500
-        self.min_distance = 700
         visualized_depth = np.full((img.shape[0], img.shape[1], 3), 255)
         visualized_depth[:, :, 0] \
             = (img - self.min_distance) * 180. \
