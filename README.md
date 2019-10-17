@@ -1,4 +1,4 @@
-# depth_visualizer
+# depth_colorizer
 
 Colorize depth image according to the value.  
 <div align = center>
