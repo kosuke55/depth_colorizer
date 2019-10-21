@@ -27,19 +27,21 @@ class Depthcolorizer():
     def subscribe(self):
         self.image_sub = rospy.Subscriber(self.INPUT_IMAGE,
                                           Image,
-                                          self.callback)
+                                          self.callback,
+                                          queue_size=1)
 
     def callback(self, msg):
+        rospy.loginfo("depthcolorizer is called")
         img = self.bridge.imgmsg_to_cv2(msg, "16UC1")
         colorized_depth = np.full((img.shape[0], img.shape[1], 3), 255,
-                                   dtype=np.uint8)
+                                  dtype=np.uint8)
         colorized_depth[:, :, 0] \
             = (img - self.min_distance) * 180. \
             / (self.max_distance - self.min_distance)
         colorized_depth[img < self.min_distance] = 0
         colorized_depth[img > self.max_distance] = 0
         colorized_depth = cv2.cvtColor(colorized_depth.astype(np.uint8),
-                                        cv2.COLOR_HSV2RGB)
+                                       cv2.COLOR_HSV2RGB)
         msg_out = self.bridge.cv2_to_imgmsg(colorized_depth, "rgb8")
         msg_out.header = msg.header
         self.pub.publish(msg_out)
