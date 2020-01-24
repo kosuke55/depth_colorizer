@@ -17,8 +17,6 @@ class Depthcolorizer():
         self.bridge = CvBridge()
         self.pub = rospy.Publisher("/colorized_depth", Image, queue_size=1)
         self.pub_mask = rospy.Publisher("/depth_mask", Image, queue_size=1)
-        self.INPUT_IMAGE = rospy.get_param(
-            '~input_image', "/head_mount_kinect/hd/image_depth_rect_repub_desktop")
         self.max_distance = rospy.get_param(
             '~max_distance', 1500.)
         self.min_distance = rospy.get_param(
@@ -26,7 +24,7 @@ class Depthcolorizer():
         self.subscribe()
 
     def subscribe(self):
-        self.image_sub = rospy.Subscriber(self.INPUT_IMAGE,
+        self.image_sub = rospy.Subscriber("~input",
                                           Image,
                                           self.callback,
                                           queue_size=1)

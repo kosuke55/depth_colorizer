@@ -1,0 +1,15 @@
+
+<launch>
+  <arg name="INPUT_IMAGE" value="/apply_mask_image_to_depth/output" />
+
+  <node name="depth_colorizer"
+        pkg="depth_colorizer" type="depthcolorizer.py"
+        output="screen">
+    <rosparam>
+      mix_distance: 500.
+      max_distance: 1000.
+    </rosparam>
+    <remap from="~input" to="$(arg INPUT_IMAGE)" />
+  </node>
+
+</launch>
