@@ -17,6 +17,8 @@ class Depthcolorizer():
         self.bridge = CvBridge()
         self.pub = rospy.Publisher("/colorized_depth", Image, queue_size=1)
         self.pub_mask = rospy.Publisher("/depth_mask", Image, queue_size=1)
+        self.use_closing = rospy.get_param(
+            '~use_closing', True)
         self.max_distance = rospy.get_param(
             '~max_distance', 1500.)
         self.min_distance = rospy.get_param(
@@ -46,6 +48,9 @@ class Depthcolorizer():
 
         # make mask iamge
         mask = cv2.inRange(img, self.min_distance, self.max_distance)
+        if self.use_closing:
+            mask = cv2.morphologyEx(
+                mask, cv2.MORPH_CLOSE, np.ones((20, 20), np.uint8))
 
         msg_out = self.bridge.cv2_to_imgmsg(colorized_depth, "rgb8")
         msg_out.header = msg.header

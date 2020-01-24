@@ -6,6 +6,7 @@
         pkg="depth_colorizer" type="depthcolorizer.py"
         output="screen">
     <rosparam>
+      use_closing: true
       mix_distance: 500.
       max_distance: 1000.
     </rosparam>
