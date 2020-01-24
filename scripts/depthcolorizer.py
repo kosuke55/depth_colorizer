@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from std_srvs.srv import SetBool, SetBoolResponse
 
 
 class Depthcolorizer():
@@ -17,19 +18,31 @@ class Depthcolorizer():
         self.bridge = CvBridge()
         self.pub = rospy.Publisher("/colorized_depth", Image, queue_size=1)
         self.pub_mask = rospy.Publisher("/depth_mask", Image, queue_size=1)
+        self.pub_kept_mask = rospy.Publisher("/kepth_depth_mask", Image, queue_size=1)
         self.use_closing = rospy.get_param(
             '~use_closing', True)
         self.max_distance = rospy.get_param(
             '~max_distance', 1500.)
         self.min_distance = rospy.get_param(
             '~min_distance', 700.)
+        self.keep_depth_mask_flag = True
+        self.kept_mask = None
         self.subscribe()
+        self.service()
 
     def subscribe(self):
         self.image_sub = rospy.Subscriber("~input",
                                           Image,
                                           self.callback,
                                           queue_size=1)
+
+    def service(self):
+        self.service = rospy.Service("/keep_depth_mask",
+                                     SetBool, self.keep_depth_mask)
+
+    def keep_depth_mask(self, req):
+        self.keep_depth_mask_flag = True
+        return SetBoolResponse(True, "call keep_depth_mask")
 
     def callback(self, msg):
         rospy.loginfo("depthcolorizer is called")
@@ -51,6 +64,9 @@ class Depthcolorizer():
         if self.use_closing:
             mask = cv2.morphologyEx(
                 mask, cv2.MORPH_CLOSE, np.ones((20, 20), np.uint8))
+        if self.keep_depth_mask_flag:
+            self.kept_mask = mask
+            self.keep_depth_mask_flag = False
 
         msg_out = self.bridge.cv2_to_imgmsg(colorized_depth, "rgb8")
         msg_out.header = msg.header
@@ -58,8 +74,12 @@ class Depthcolorizer():
         msg_mask_out = self.bridge.cv2_to_imgmsg(mask, "mono8")
         msg_mask_out.header = msg.header
 
+        msg_kept_mask_out = self.bridge.cv2_to_imgmsg(self.kept_mask, "mono8")
+        msg_kept_mask_out.header = msg.header
+
         self.pub.publish(msg_out)
         self.pub_mask.publish(msg_mask_out)
+        self.pub_kept_mask.publish(msg_kept_mask_out)
 
     def dynamic_reconfigure_callback(self, config, level):
         self.min_distance = config["min_distance"]
