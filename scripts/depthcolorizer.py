@@ -18,7 +18,8 @@ class Depthcolorizer():
         self.bridge = CvBridge()
         self.pub = rospy.Publisher("/colorized_depth", Image, queue_size=1)
         self.pub_mask = rospy.Publisher("/depth_mask", Image, queue_size=1)
-        self.pub_kept_mask = rospy.Publisher("/kept_depth_mask", Image, queue_size=1)
+        self.pub_kept_mask = rospy.Publisher(
+            "/kept_depth_mask", Image, queue_size=1)
         self.use_closing = rospy.get_param(
             '~use_closing', True)
         self.max_distance = rospy.get_param(
@@ -85,6 +86,7 @@ class Depthcolorizer():
         self.min_distance = config["min_distance"]
         self.max_distance = config["max_distance"]
         return config
+
 
 def main(args):
     rospy.init_node("depthcolorizer", anonymous=False)
