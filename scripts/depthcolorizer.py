@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
+import cv2
 from dynamic_reconfigure.server import Server
 from depth_colorizer.cfg import DynamicParamsConfig
+import numpy as np
 import rospy
 import sys
-import cv2
-import numpy as np
-from sensor_msgs.msg import Image
+
 from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
 from std_srvs.srv import SetBool, SetBoolResponse
 
 
